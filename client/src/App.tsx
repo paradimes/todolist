@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AddTodo from "./components/AddTodo";
 import "./index.css";
 import TodoList from "./components/TodoList";
@@ -10,7 +10,15 @@ export type Todo = {
 };
 
 export default function App() {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const initialValue = JSON.parse(localStorage.getItem("todos") || "");
+
+  const [todos, setTodos] = useState<Todo[]>(
+    initialValue !== "" ? initialValue : []
+  );
+
+  const saveData = useCallback(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
 
   const addTodo = (title: string) => {
     const newTodo = { id: Date.now(), title, completed: false };
@@ -27,6 +35,10 @@ export default function App() {
   const deleteTodo = (id: number) => {
     setTodos(todos.filter((todo) => todo.id !== id));
   };
+
+  useEffect(() => {
+    saveData();
+  }, [saveData, todos]);
 
   return (
     <div className="p-10 flex flex-col gap-5">
