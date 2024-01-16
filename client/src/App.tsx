@@ -16,10 +16,6 @@ export default function App() {
     initialValue !== "" ? initialValue : []
   );
 
-  const saveData = useCallback(() => {
-    localStorage.setItem("todos", JSON.stringify(todos));
-  }, [todos]);
-
   const addTodo = (title: string) => {
     const newTodo = { id: Date.now(), title, completed: false };
     setTodos([...todos, newTodo]);
@@ -35,6 +31,10 @@ export default function App() {
   const deleteTodo = (id: number) => {
     setTodos(todos.filter((todo) => todo.id !== id));
   };
+
+  const saveData = useCallback(() => {
+    localStorage.setItem("todos", JSON.stringify(todos));
+  }, [todos]);
 
   useEffect(() => {
     saveData();
