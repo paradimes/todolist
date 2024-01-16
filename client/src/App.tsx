@@ -1,0 +1,40 @@
+import { useState } from "react";
+import AddTodo from "./components/AddTodo";
+import "./index.css";
+import TodoList from "./components/TodoList";
+
+export type Todo = {
+  id: number;
+  title: string;
+  completed: boolean;
+};
+
+export default function App() {
+  const [todos, setTodos] = useState<Todo[]>([]);
+
+  const addTodo = (title: string) => {
+    const newTodo = { id: Date.now(), title, completed: false };
+    setTodos([...todos, newTodo]);
+  };
+
+  const toggleTodo = (id: number) => {
+    setTodos(
+      todos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
+  };
+  const deleteTodo = (id: number) => {
+    setTodos(todos.filter((todo) => todo.id !== id));
+  };
+
+  return (
+    <div className="p-10 flex flex-col gap-5">
+      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl ">
+        To Do List
+      </h1>
+      <AddTodo onAddTodo={addTodo} />
+      <TodoList todos={todos} onToggle={toggleTodo} onDelete={deleteTodo} />
+    </div>
+  );
+}
