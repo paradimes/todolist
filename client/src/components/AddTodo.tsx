@@ -28,7 +28,11 @@ export default function AddTodo({ onAddTodo }: AddTodoProps) {
         value={taskTitle}
         onChange={(e) => setTaskTitle(e.target.value)}
       />
-      <Button disabled={!taskTitle} type="submit">
+      <Button
+        disabled={!taskTitle}
+        type="submit"
+        className="disabled:bg-black disabled:opacity-100 disabled:cursor-not-allowed"
+      >
         Add
       </Button>
     </form>
