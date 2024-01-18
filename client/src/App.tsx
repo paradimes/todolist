@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import AddTodo from "./components/AddTodo";
 import "./index.css";
 import TodoList from "./components/TodoList";
-import { Trash2, Plus, Check } from "lucide-react";
-import { Alert, AlertTitle } from "@/components/ui/alert";
+import TaskAlert from "./components/TaskAlert";
 
 export type Todo = {
   id: number;
@@ -12,11 +11,7 @@ export type Todo = {
 };
 
 export default function App() {
-  const initialValue = JSON.parse(localStorage.getItem("todos") || "");
-
-  const [todos, setTodos] = useState<Todo[]>(
-    initialValue !== "" ? initialValue : []
-  );
+  const [todos, setTodos] = useState<Todo[]>([]);
   const [notification, setNotification] = useState<string | null>(null);
   const [notificationTimer, setNotificationTimer] =
     useState<NodeJS.Timeout | null>(null);
@@ -35,10 +30,64 @@ export default function App() {
     setNotificationTimer(newTimer);
   };
 
-  const addTodo = (title: string) => {
-    const newTodo = { id: Date.now(), title, completed: false };
-    setTodos([...todos, newTodo]);
-    setNotificationWithTimeout("Task added!");
+  const addTodo = async (title: string) => {
+    try {
+      const response = await fetch("http://localhost:3001/addTodo", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ title, completed: false }),
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const newTodo = await response.json();
+      setTodos((prevTodos) => [...prevTodos, newTodo]);
+      setNotificationWithTimeout("Task added!");
+    } catch (error) {
+      console.error("Add todo failed:", error);
+    }
+  };
+
+  const deleteTodo = async (id: number) => {
+    try {
+      const response = await fetch(`http://localhost:3001/deleteTodo/${id}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+      setNotificationWithTimeout("Task deleted.");
+    } catch (error) {
+      console.error("Delete todo failed:", error);
+    }
+  };
+
+  const editTodo = async (id: number, newTitle: string) => {
+    const updatedData = {
+      title: newTitle,
+    };
+
+    try {
+      const response = await fetch(`http://localhost:3001/todos/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const updatedTodo = await response.json();
+      setTodos((prevTodos) =>
+        prevTodos.map((todo) => (todo.id === id ? updatedTodo : todo))
+      );
+    } catch (error) {
+      console.error("Update todo failed:", error);
+    }
   };
 
   const toggleTodo = (id: number) => {
@@ -50,44 +99,36 @@ export default function App() {
       })
     );
   };
-  const deleteTodo = (id: number) => {
-    setTodos(todos.filter((todo) => todo.id !== id));
-    setNotificationWithTimeout("Task deleted.");
-  };
-
-  const saveData = useCallback(() => {
-    localStorage.setItem("todos", JSON.stringify(todos));
-  }, [todos]);
 
   useEffect(() => {
-    saveData();
-  }, [saveData, todos]);
+    const fetchTodos = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/getTodos");
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const todos = await response.json();
+        setTodos(todos);
+      } catch (error) {
+        console.error("Fetch todos failed:", error);
+      }
+    };
+    fetchTodos();
+  }, []);
 
   return (
     <div className="p-10 flex flex-col gap-5">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl ">
+      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
         To Do List
       </h1>
       <AddTodo onAddTodo={addTodo} />
-      {notification === "Task added!" ? (
-        <Alert variant={"default"}>
-          <Plus className="h-4 w-4" />
-          <AlertTitle>{notification}</AlertTitle>
-        </Alert>
-      ) : notification === "Task deleted." ? (
-        <Alert variant={"destructive"}>
-          <Trash2 className="h-4 w-4" />
-          <AlertTitle>{notification}</AlertTitle>
-        </Alert>
-      ) : (
-        notification === "Task completed!" && (
-          <Alert variant={"default"}>
-            <Check className="h-4 w-4" color="#22c55e" />
-            <AlertTitle className="text-green-500">{notification}</AlertTitle>
-          </Alert>
-        )
-      )}
-      <TodoList todos={todos} onToggle={toggleTodo} onDelete={deleteTodo} />
+      <TodoList
+        todos={todos}
+        onToggle={toggleTodo}
+        onDelete={deleteTodo}
+        onEdit={editTodo}
+      />
+      <TaskAlert notification={notification} />
     </div>
   );
 }

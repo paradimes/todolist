@@ -6,9 +6,15 @@ type TodoListProps = {
   todos: Todo[]; //array of Todo objects
   onToggle: (id: number) => void; //received from App.tsx, passing down to each Todo item; prop-drilling
   onDelete: (id: number) => void;
+  onEdit: (id: number, updatedData: string) => void;
 };
 
-export default function TodoList({ todos, onToggle, onDelete }: TodoListProps) {
+export default function TodoList({
+  todos,
+  onToggle,
+  onDelete,
+  onEdit,
+}: TodoListProps) {
   return (
     <div className="flex flex-col gap-4">
       {todos.length === 0 ? (
@@ -22,6 +28,7 @@ export default function TodoList({ todos, onToggle, onDelete }: TodoListProps) {
             {...todo}
             onToggle={onToggle}
             onDelete={onDelete}
+            onEdit={onEdit}
           />
         ))
       )}
