@@ -13,7 +13,7 @@ export default function AddTodo({ onAddTodo }: AddTodoProps) {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    onAddTodo(taskTitle); // creates a TodoItem and appends it to the TodoList
+    onAddTodo(taskTitle);
     setTaskTitle("");
   };
 

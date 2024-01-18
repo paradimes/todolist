@@ -15,6 +15,7 @@ export default function App() {
   const [notification, setNotification] = useState<string | null>(null);
   const [notificationTimer, setNotificationTimer] =
     useState<NodeJS.Timeout | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const setNotificationWithTimeout = (message: string) => {
     if (notificationTimer) {
@@ -90,19 +91,36 @@ export default function App() {
     }
   };
 
-  const toggleTodo = (id: number) => {
-    setTodos(
-      todos.map((todo) => {
-        if (todo.id === id && todo.completed === false)
-          setNotificationWithTimeout("Task completed!");
-        return todo.id === id ? { ...todo, completed: !todo.completed } : todo;
-      })
-    );
+  const toggleTodo = async (id: number, completedStatus: boolean) => {
+    const updatedData = {
+      completed: completedStatus,
+    };
+
+    try {
+      const response = await fetch(`http://localhost:3001/todos/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      const updatedTodo = await response.json();
+      setTodos((prevTodos) =>
+        prevTodos.map((todo) => (todo.id === id ? updatedTodo : todo))
+      );
+    } catch (error) {
+      console.error("Toggle todo failed:", error);
+    }
   };
 
   useEffect(() => {
     const fetchTodos = async () => {
       try {
+        setIsLoading(true);
         const response = await fetch("http://localhost:3001/getTodos");
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -111,6 +129,8 @@ export default function App() {
         setTodos(todos);
       } catch (error) {
         console.error("Fetch todos failed:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchTodos();
@@ -127,6 +147,7 @@ export default function App() {
         onToggle={toggleTodo}
         onDelete={deleteTodo}
         onEdit={editTodo}
+        isLoading={isLoading}
       />
       <TaskAlert notification={notification} />
     </div>

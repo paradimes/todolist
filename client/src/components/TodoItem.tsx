@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { useState } from "react";
 
 // single todo item
@@ -8,7 +9,7 @@ type TodoItemProps = {
   id: number;
   title: string;
   completed: boolean;
-  onToggle: (id: number) => void;
+  onToggle: (id: number, completedStatus: boolean) => void;
   onDelete: (id: number) => void;
   onEdit: (id: number, updatedData: string) => void;
 };
@@ -34,15 +35,14 @@ export default function TodoItem({
   };
 
   return (
-    <div className="flex items-center space-x-2 w-full ">
-      <Checkbox id="terms" checked={completed} onClick={() => onToggle(id)} />
+    <div className="flex items-center space-x-2 w-full  ">
+      <Checkbox
+        id="terms"
+        checked={completed}
+        onClick={() => onToggle(id, !completed)}
+      />
       {isEditing ? (
-        <input
-          className="border-2 border-stone-400 rounded-md p-1"
-          id="editText"
-          value={editText}
-          onChange={(e) => setEditText(e.target.value)}
-        />
+        <Input value={editText} onChange={(e) => setEditText(e.target.value)} />
       ) : (
         <label
           htmlFor="terms"
@@ -54,9 +54,6 @@ export default function TodoItem({
         </label>
       )}
       <div className="flex gap-2">
-        <Button className="h-fit " onClick={() => onDelete(id)}>
-          Delete
-        </Button>
         {isEditing ? (
           <Button className="h-fit " onClick={() => handleSave()}>
             Save
@@ -66,6 +63,9 @@ export default function TodoItem({
             Edit
           </Button>
         )}
+        <Button className="h-fit " onClick={() => onDelete(id)}>
+          Delete
+        </Button>
       </div>
     </div>
   );

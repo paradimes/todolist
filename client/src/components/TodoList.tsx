@@ -1,12 +1,14 @@
 // display list of todo's
 import { Todo } from "../App";
+import LoadingSpinner from "./LoadingSpinner";
 import TodoItem from "./TodoItem";
 
 type TodoListProps = {
-  todos: Todo[]; //array of Todo objects
-  onToggle: (id: number) => void; //received from App.tsx, passing down to each Todo item; prop-drilling
+  todos: Todo[];
+  onToggle: (id: number, completedStatus: boolean) => void;
   onDelete: (id: number) => void;
   onEdit: (id: number, updatedData: string) => void;
+  isLoading: boolean;
 };
 
 export default function TodoList({
@@ -14,12 +16,15 @@ export default function TodoList({
   onToggle,
   onDelete,
   onEdit,
+  isLoading,
 }: TodoListProps) {
   return (
-    <div className="flex flex-col gap-4">
-      {todos.length === 0 ? (
+    <div className="flex flex-col gap-4 max-w-sm">
+      {isLoading ? (
+        <LoadingSpinner />
+      ) : todos.length === 0 ? (
         <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
-          No Todos yet!{" "}
+          {""}
         </h4>
       ) : (
         todos.map((todo) => (
