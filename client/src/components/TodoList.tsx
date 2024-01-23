@@ -5,9 +5,9 @@ import TodoItem from "./TodoItem";
 
 type TodoListProps = {
   todos: Todo[];
-  onToggle: (id: number, completedStatus: boolean) => void;
-  onDelete: (id: number) => void;
-  onEdit: (id: number, updatedData: string) => void;
+  onToggle: (id: string, completedStatus: boolean) => void;
+  onDelete: (id: string) => void;
+  onEdit: (id: string, updatedData: string) => void;
   isLoading: boolean;
 };
 

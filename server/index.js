@@ -2,44 +2,75 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const port = 3001;
+const { connect } = require("./db");
+const Todo = require("./todo");
 
 app.use(express.json());
 app.use(cors());
 
-let todos = [];
-
-app.get("/testing", (req, res) => {
-  res.status(200).send("hello");
+app.get("/getTodos", async (req, res) => {
+  await connect();
+  try {
+    const todos = await Todo.find();
+    const transformedTodos = todos.map((todo) => ({
+      id: todo._id.toString(),
+      title: todo.title,
+      completed: todo.completed,
+    }));
+    res.send(transformedTodos);
+  } catch (error) {
+    res.status(500).send(error);
+  }
 });
 
-// listing todos
-app.get("/getTodos", (req, res) => {
-  res.status(200).send(todos);
+app.post("/addTodo", async (req, res) => {
+  await connect();
+  const { title } = req.body;
+
+  try {
+    const newTodo = new Todo({ title });
+    await newTodo.save();
+    const transformedNewTodo = {
+      id: newTodo._id.toString(),
+      title: newTodo.title,
+      completed: newTodo.completed,
+    };
+    res.status(201).send(transformedNewTodo);
+  } catch (error) {
+    res.status(400).send(error);
+  }
 });
 
-// adding a todo
-app.post("/addTodo", (req, res) => {
-  const todo = { id: Date.now(), ...req.body };
-  todos.push(todo);
-  res.status(201).send(todo);
+app.delete("/deleteTodo/:id", async (req, res) => {
+  await connect();
+  try {
+    const response = await Todo.findByIdAndDelete(req.params.id);
+    if (!response) {
+      return res.status(404).send();
+    }
+    res.send(response);
+  } catch (error) {
+    res.status(500).send(error);
+  }
 });
 
-// delete
-app.delete("/deleteTodo/:id", (req, res) => {
-  const { id } = req.params;
-  todos = todos.filter((todo) => todo.id !== parseInt(id));
-  res.status(204).send();
-});
-
-//update
-app.put("/todos/:id", (req, res) => {
-  const { id } = req.params;
-  let foundIndex = todos.findIndex((todo) => todo.id === parseInt(id));
-  if (foundIndex === -1) {
-    res.status(404).send();
-  } else {
-    todos[foundIndex] = { ...todos[foundIndex], ...req.body };
-    res.status(200).send(todos[foundIndex]);
+app.put("/editTodo/:id", async (req, res) => {
+  await connect();
+  try {
+    const response = await Todo.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+    if (!response) {
+      return res.status(404).send();
+    }
+    const editedTodo = {
+      id: response._id.toString(),
+      title: response.title,
+      completed: response.completed,
+    };
+    res.send(editedTodo);
+  } catch (error) {
+    res.status(400).send(error);
   }
 });
 

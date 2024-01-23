@@ -5,7 +5,7 @@ import TodoList from "./components/TodoList";
 import TaskAlert from "./components/TaskAlert";
 
 export type Todo = {
-  id: number;
+  id: string;
   title: string;
   completed: boolean;
 };
@@ -38,7 +38,7 @@ export default function App() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title, completed: false }),
+        body: JSON.stringify({ title }),
       });
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -51,7 +51,7 @@ export default function App() {
     }
   };
 
-  const deleteTodo = async (id: number) => {
+  const deleteTodo = async (id: string) => {
     try {
       const response = await fetch(`http://localhost:3001/deleteTodo/${id}`, {
         method: "DELETE",
@@ -66,13 +66,13 @@ export default function App() {
     }
   };
 
-  const editTodo = async (id: number, newTitle: string) => {
+  const editTodo = async (id: string, newTitle: string) => {
     const updatedData = {
       title: newTitle,
     };
 
     try {
-      const response = await fetch(`http://localhost:3001/todos/${id}`, {
+      const response = await fetch(`http://localhost:3001/editTodo/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -91,13 +91,13 @@ export default function App() {
     }
   };
 
-  const toggleTodo = async (id: number, completedStatus: boolean) => {
+  const toggleTodo = async (id: string, completedStatus: boolean) => {
     const updatedData = {
       completed: completedStatus,
     };
 
     try {
-      const response = await fetch(`http://localhost:3001/todos/${id}`, {
+      const response = await fetch(`http://localhost:3001/editTodo/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

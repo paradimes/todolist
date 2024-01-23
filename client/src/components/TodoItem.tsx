@@ -6,12 +6,12 @@ import { useState } from "react";
 // single todo item
 
 type TodoItemProps = {
-  id: number;
+  id: string;
   title: string;
   completed: boolean;
-  onToggle: (id: number, completedStatus: boolean) => void;
-  onDelete: (id: number) => void;
-  onEdit: (id: number, updatedData: string) => void;
+  onToggle: (id: string, completedStatus: boolean) => void;
+  onDelete: (id: string) => void;
+  onEdit: (id: string, updatedData: string) => void;
 };
 
 export default function TodoItem({
