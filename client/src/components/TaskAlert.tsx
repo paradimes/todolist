@@ -1,4 +1,4 @@
-import { Trash2, Plus, Check } from "lucide-react";
+import { Trash2, CheckSquare, PlusSquare } from "lucide-react";
 import { Alert, AlertTitle } from "@/components/ui/alert";
 type TaskAlertProps = {
   notification: string | null;
@@ -6,11 +6,14 @@ type TaskAlertProps = {
 
 export default function TaskAlert({ notification }: TaskAlertProps) {
   return (
-    <>
-      {notification === "Task added!" ? (
-        <Alert variant={"default"}>
-          <Plus className="h-4 w-4" />
-          <AlertTitle>{notification}</AlertTitle>
+    <div className="flex w-[448px]">
+      {notification === "Task added." ? (
+        <Alert
+          variant={"default"}
+          className="text-sky-500 bg-white bg-transparent border-[1px] border-sky-700 transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 duration-300 "
+        >
+          <PlusSquare className="h-4 w-4" color="#0ea5e9" />
+          <AlertTitle>Task added.</AlertTitle>
         </Alert>
       ) : notification === "Task deleted." ? (
         <Alert variant={"destructive"}>
@@ -19,12 +22,15 @@ export default function TaskAlert({ notification }: TaskAlertProps) {
         </Alert>
       ) : (
         notification === "Task completed!" && (
-          <Alert variant={"default"}>
-            <Check className="h-4 w-4" color="#22c55e" />
-            <AlertTitle className="text-green-500">{notification}</AlertTitle>
+          <Alert
+            variant={"default"}
+            className="text-green-500 bg-white bg-transparent border-[1px] border-green-700"
+          >
+            <CheckSquare className="h-4 w-4" color="#22c55e" />
+            <AlertTitle className="text-green-500">Task completed!</AlertTitle>
           </Alert>
         )
       )}
-    </>
+    </div>
   );
 }

@@ -45,7 +45,7 @@ export default function App() {
       }
       const newTodo = await response.json();
       setTodos((prevTodos) => [...prevTodos, newTodo]);
-      setNotificationWithTimeout("Task added!");
+      setNotificationWithTimeout("Task added.");
     } catch (error) {
       console.error("Add todo failed:", error);
     }
@@ -112,6 +112,7 @@ export default function App() {
       setTodos((prevTodos) =>
         prevTodos.map((todo) => (todo.id === id ? updatedTodo : todo))
       );
+      setNotificationWithTimeout("Task completed!");
     } catch (error) {
       console.error("Toggle todo failed:", error);
     }
@@ -137,8 +138,8 @@ export default function App() {
   }, []);
 
   return (
-    <div className="p-10 flex flex-col gap-5">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+    <div className="p-10 flex flex-col items-center  gap-5 bg-[url('./assets/bg-2.jpeg')] h-screen bg-cover">
+      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-white">
         To Do List
       </h1>
       <AddTodo onAddTodo={addTodo} />

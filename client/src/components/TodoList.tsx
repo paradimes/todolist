@@ -19,7 +19,7 @@ export default function TodoList({
   isLoading,
 }: TodoListProps) {
   return (
-    <div className="flex flex-col gap-4 max-w-sm">
+    <div className="flex flex-col gap-4 w-[448px] bg-white px-8 py-6 rounded-lg bg-opacity-85  ">
       {isLoading ? (
         <LoadingSpinner />
       ) : todos.length === 0 ? (
