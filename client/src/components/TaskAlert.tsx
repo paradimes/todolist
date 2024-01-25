@@ -10,7 +10,7 @@ export default function TaskAlert({ notification }: TaskAlertProps) {
       {notification === "Task added." ? (
         <Alert
           variant={"default"}
-          className="text-sky-500 bg-white bg-transparent border-[1px] border-sky-700 transition ease-in-out delay-150 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 duration-300 "
+          className="text-sky-500 bg-white bg-transparent border-[1px] border-sky-700"
         >
           <PlusSquare className="h-4 w-4" color="#0ea5e9" />
           <AlertTitle>Task added.</AlertTitle>

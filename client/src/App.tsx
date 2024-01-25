@@ -3,6 +3,7 @@ import AddTodo from "./components/AddTodo";
 import "./index.css";
 import TodoList from "./components/TodoList";
 import TaskAlert from "./components/TaskAlert";
+import { Blob1, Blob2 } from "./components/SVGComponents";
 
 export type Todo = {
   id: string;
@@ -137,9 +138,13 @@ export default function App() {
     fetchTodos();
   }, []);
 
+  // bg-[url('./assets/bg-2.jpeg')]
   return (
-    <div className="p-10 flex flex-col items-center  gap-5 bg-[url('./assets/bg-2.jpeg')] h-screen bg-cover">
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-white">
+    <div
+      className="w-full p-10 flex relative flex-col items-center gap-5 min-h-screen bg-cover  overflow-x-clip 
+    "
+    >
+      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-6xl text-white">
         To Do List
       </h1>
       <AddTodo onAddTodo={addTodo} />
