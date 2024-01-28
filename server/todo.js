@@ -5,7 +5,7 @@ const todoSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  completed: {
+  completedStatus: {
     type: Boolean,
     default: false,
   },

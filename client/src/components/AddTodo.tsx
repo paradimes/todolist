@@ -1,5 +1,3 @@
-// form to add new todo
-
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";

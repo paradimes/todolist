@@ -11,7 +11,7 @@ import LogoutButtonAuth0 from "./components/ui/LogoutButtonAuth0";
 export type Todo = {
   id: string;
   title: string;
-  completed: boolean;
+  completedStatus: boolean;
 };
 
 export default function App() {
@@ -76,11 +76,11 @@ export default function App() {
     }
   };
 
-  const editTodo = async (taskId: string, newTitle: string) => {
+  const editTodo = async (taskId: string, taskUpdate: object) => {
     const updatedData = {
       userId: user.email,
       taskId: taskId,
-      update: { title: newTitle },
+      update: taskUpdate,
     };
 
     try {
@@ -100,37 +100,6 @@ export default function App() {
       );
     } catch (error) {
       console.error("Update todo failed:", error);
-    }
-  };
-
-  const toggleTodo = async (taskId: string, completedStatus: boolean) => {
-    const updatedData = {
-      userId: user.email,
-      taskId: taskId,
-      update: { completed: completedStatus },
-    };
-
-    try {
-      const response = await fetch(`http://localhost:3001/editTodo`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const updatedTodo = await response.json();
-      setTodos((prevTodos) =>
-        prevTodos.map((todo) => (todo.id === taskId ? updatedTodo : todo))
-      );
-      if (completedStatus === true) {
-        setNotificationWithTimeout("Task completed!");
-      }
-    } catch (error) {
-      console.error("Toggle todo failed:", error);
     }
   };
 
@@ -176,7 +145,6 @@ export default function App() {
         isAuthenticated && (
           <TodoList
             todos={todos}
-            onToggle={toggleTodo}
             onDelete={deleteTodo}
             onEdit={editTodo}
             isLoading={isLoading}

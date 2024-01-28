@@ -1,19 +1,16 @@
-// display list of todo's
 import { Todo } from "../App";
 import LoadingSpinner from "./LoadingSpinner";
 import TodoItem from "./TodoItem";
 
 type TodoListProps = {
   todos: Todo[];
-  onToggle: (id: string, completedStatus: boolean) => void;
   onDelete: (id: string) => void;
-  onEdit: (id: string, updatedData: string) => void;
+  onEdit: (id: string, taskUpdate: object) => void;
   isLoading: boolean;
 };
 
 export default function TodoList({
   todos,
-  onToggle,
   onDelete,
   onEdit,
   isLoading,
@@ -35,7 +32,6 @@ export default function TodoList({
           <TodoItem
             key={todo.id}
             {...todo}
-            onToggle={onToggle}
             onDelete={onDelete}
             onEdit={onEdit}
           />

@@ -20,7 +20,7 @@ app.get("/getTodos", async (req, res) => {
     const transformedTodos = todos.map((todo) => ({
       id: todo._id.toString(),
       title: todo.title,
-      completed: todo.completed,
+      completedStatus: todo.completedStatus,
     }));
     res.send(transformedTodos);
   } catch (error) {
@@ -48,7 +48,7 @@ app.post("/addTodo", async (req, res) => {
     const transformedNewTodo = {
       id: newTodo._id.toString(),
       title: newTodo.title,
-      completed: newTodo.completed,
+      completedStatus: newTodo.completedStatus,
     };
     res.status(201).send(transformedNewTodo);
   } catch (error) {
@@ -102,7 +102,7 @@ app.put("/editTodo", async (req, res) => {
     const editedTodo = {
       id: user.todos[todoIndex]._id.toString(),
       title: user.todos[todoIndex].title,
-      completed: user.todos[todoIndex].completed,
+      completedStatus: user.todos[todoIndex].completedStatus,
     };
     res.send(editedTodo);
   } catch (error) {

@@ -7,17 +7,15 @@ import { useState } from "react";
 type TodoItemProps = {
   id: string;
   title: string;
-  completed: boolean;
-  onToggle: (id: string, completedStatus: boolean) => void;
+  completedStatus: boolean;
   onDelete: (id: string) => void;
-  onEdit: (id: string, updatedData: string) => void;
+  onEdit: (id: string, taskUpdate: object) => void;
 };
 
 export default function TodoItem({
   id,
   title,
-  completed,
-  onToggle,
+  completedStatus,
   onDelete,
   onEdit,
 }: TodoItemProps) {
@@ -29,7 +27,7 @@ export default function TodoItem({
   };
 
   const handleSave = () => {
-    onEdit(id, editText);
+    onEdit(id, { title: editText });
     setIsEditing(false);
   };
 
@@ -41,8 +39,8 @@ export default function TodoItem({
       >
         <Checkbox
           id="terms"
-          checked={completed}
-          onClick={() => onToggle(id, !completed)}
+          checked={completedStatus}
+          onClick={() => onEdit(id, { completedStatus: !completedStatus })}
         />
         {isEditing ? (
           <Input
@@ -53,8 +51,8 @@ export default function TodoItem({
           <label
             htmlFor="terms"
             className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
-              completed ? `line-through` : `none`
-            } pointer-events-none break-words min-w-0	`}
+              completedStatus ? `line-through` : `none`
+            } pointer-events-none break-words min-w-0 leading-5	`}
           >
             {title}
           </label>
