@@ -3,15 +3,20 @@ const app = express();
 const cors = require("cors");
 const port = 3001;
 const { connect } = require("./db");
-const Todo = require("./todo");
+const { TodoItem, TodoUser } = require("./todo");
 
 app.use(express.json());
 app.use(cors());
 
 app.get("/getTodos", async (req, res) => {
   await connect();
+  const { userEmail } = req.query;
   try {
-    const todos = await Todo.find();
+    const user = await TodoUser.findOne({ userId: userEmail });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const todos = user.todos;
     const transformedTodos = todos.map((todo) => ({
       id: todo._id.toString(),
       title: todo.title,
@@ -25,11 +30,21 @@ app.get("/getTodos", async (req, res) => {
 
 app.post("/addTodo", async (req, res) => {
   await connect();
-  const { title } = req.body;
+  const { userId, title } = req.body;
 
   try {
-    const newTodo = new Todo({ title });
+    let user = await TodoUser.findOne({ userId });
+
+    if (!user) {
+      user = new TodoUser({ userId, todos: [] });
+    }
+
+    const newTodo = new TodoItem({ title });
     await newTodo.save();
+
+    user.todos.push(newTodo);
+    await user.save();
+
     const transformedNewTodo = {
       id: newTodo._id.toString(),
       title: newTodo.title,
@@ -41,32 +56,53 @@ app.post("/addTodo", async (req, res) => {
   }
 });
 
-app.delete("/deleteTodo/:id", async (req, res) => {
+app.delete("/deleteTodo", async (req, res) => {
   await connect();
+  const { userId, taskId } = req.body;
+
   try {
-    const response = await Todo.findByIdAndDelete(req.params.id);
-    if (!response) {
-      return res.status(404).send();
+    let user = await TodoUser.findOne({ userId });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
-    res.send(response);
+
+    user.todos = user.todos.filter((todo) => todo._id.toString() !== taskId);
+    await user.save();
+
+    res.send(user.todos);
   } catch (error) {
     res.status(500).send(error);
   }
 });
 
-app.put("/editTodo/:id", async (req, res) => {
+app.put("/editTodo", async (req, res) => {
   await connect();
+  const { userId, taskId, update } = req.body;
+
   try {
-    const response = await Todo.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
-    if (!response) {
-      return res.status(404).send();
+    let user = await TodoUser.findOne({ userId });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
     }
+
+    const todoIndex = user.todos.findIndex(
+      (todo) => todo._id.toString() === taskId
+    );
+
+    if (todoIndex === -1) {
+      return res.status(404).json({ message: "Todo not found" });
+    }
+
+    user.todos[todoIndex] = { ...user.todos[todoIndex].toObject(), ...update };
+
+    await user.save();
+
     const editedTodo = {
-      id: response._id.toString(),
-      title: response.title,
-      completed: response.completed,
+      id: user.todos[todoIndex]._id.toString(),
+      title: user.todos[todoIndex].title,
+      completed: user.todos[todoIndex].completed,
     };
     res.send(editedTodo);
   } catch (error) {

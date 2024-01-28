@@ -11,6 +11,21 @@ const todoSchema = new mongoose.Schema({
   },
 });
 
-const Todo = mongoose.model("Todo", todoSchema);
+const todoUserSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  todos: [todoSchema],
+  // todos: {
+  //   type: Map,
+  //   of: { type: mongoose.Schema.Types.ObjectId, ref: "TodoItem" },
+  //   default: {},
+  // },
+});
 
-module.exports = Todo;
+const TodoUser = mongoose.model("TodoUser", todoUserSchema);
+const TodoItem = mongoose.model("TodoItem", todoSchema);
+
+module.exports = { TodoItem, TodoUser };

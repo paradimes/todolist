@@ -19,7 +19,11 @@ export default function TodoList({
   isLoading,
 }: TodoListProps) {
   return (
-    <div className="flex flex-col gap-4 w-[448px] bg-white px-8 py-6 rounded-lg bg-opacity-85  ">
+    <div
+      className={`flex flex-col gap-4 w-[448px] bg-white px-8 py-6 rounded-lg bg-opacity-85 ${
+        todos.length === 0 ? "opacity-0" : ""
+      } `}
+    >
       {isLoading ? (
         <LoadingSpinner />
       ) : todos.length === 0 ? (

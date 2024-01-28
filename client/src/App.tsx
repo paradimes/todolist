@@ -3,7 +3,10 @@ import AddTodo from "./components/AddTodo";
 import "./index.css";
 import TodoList from "./components/TodoList";
 import TaskAlert from "./components/TaskAlert";
-import { Blob1, Blob2 } from "./components/SVGComponents";
+import LoginButtonAuth0 from "./components/LoginButtonAuth0";
+import LoadingSpinner from "./components/LoadingSpinner";
+import { useAuth0 } from "@auth0/auth0-react";
+import LogoutButtonAuth0 from "./components/ui/LogoutButtonAuth0";
 
 export type Todo = {
   id: string;
@@ -12,6 +15,8 @@ export type Todo = {
 };
 
 export default function App() {
+  const { user = {}, isAuthenticated, isLoading: Auth0Loading } = useAuth0();
+
   const [todos, setTodos] = useState<Todo[]>([]);
   const [notification, setNotification] = useState<string | null>(null);
   const [notificationTimer, setNotificationTimer] =
@@ -39,7 +44,7 @@ export default function App() {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title }),
+        body: JSON.stringify({ userId: user.email, title }),
       });
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -52,28 +57,34 @@ export default function App() {
     }
   };
 
-  const deleteTodo = async (id: string) => {
+  const deleteTodo = async (taskId: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/deleteTodo/${id}`, {
+      const response = await fetch(`http://localhost:3001/deleteTodo`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: user.email, taskId }),
       });
       if (!response.ok) {
         throw new Error("Network response was not ok");
       }
-      setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== id));
+      setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== taskId));
       setNotificationWithTimeout("Task deleted.");
     } catch (error) {
       console.error("Delete todo failed:", error);
     }
   };
 
-  const editTodo = async (id: string, newTitle: string) => {
+  const editTodo = async (taskId: string, newTitle: string) => {
     const updatedData = {
-      title: newTitle,
+      userId: user.email,
+      taskId: taskId,
+      update: { title: newTitle },
     };
 
     try {
-      const response = await fetch(`http://localhost:3001/editTodo/${id}`, {
+      const response = await fetch(`http://localhost:3001/editTodo`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -85,20 +96,22 @@ export default function App() {
       }
       const updatedTodo = await response.json();
       setTodos((prevTodos) =>
-        prevTodos.map((todo) => (todo.id === id ? updatedTodo : todo))
+        prevTodos.map((todo) => (todo.id === taskId ? updatedTodo : todo))
       );
     } catch (error) {
       console.error("Update todo failed:", error);
     }
   };
 
-  const toggleTodo = async (id: string, completedStatus: boolean) => {
+  const toggleTodo = async (taskId: string, completedStatus: boolean) => {
     const updatedData = {
-      completed: completedStatus,
+      userId: user.email,
+      taskId: taskId,
+      update: { completed: completedStatus },
     };
 
     try {
-      const response = await fetch(`http://localhost:3001/editTodo/${id}`, {
+      const response = await fetch(`http://localhost:3001/editTodo`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -111,9 +124,11 @@ export default function App() {
       }
       const updatedTodo = await response.json();
       setTodos((prevTodos) =>
-        prevTodos.map((todo) => (todo.id === id ? updatedTodo : todo))
+        prevTodos.map((todo) => (todo.id === taskId ? updatedTodo : todo))
       );
-      setNotificationWithTimeout("Task completed!");
+      if (completedStatus === true) {
+        setNotificationWithTimeout("Task completed!");
+      }
     } catch (error) {
       console.error("Toggle todo failed:", error);
     }
@@ -123,7 +138,9 @@ export default function App() {
     const fetchTodos = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch("http://localhost:3001/getTodos");
+        const response = await fetch(
+          `http://localhost:3001/getTodos?userEmail=${user.email}`
+        );
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -135,8 +152,10 @@ export default function App() {
         setIsLoading(false);
       }
     };
-    fetchTodos();
-  }, []);
+    if (user.email) {
+      fetchTodos();
+    }
+  }, [user.email]);
 
   // bg-[url('./assets/bg-2.jpeg')]
   return (
@@ -144,17 +163,26 @@ export default function App() {
       className="w-full p-10 flex relative flex-col items-center gap-5 min-h-screen bg-cover  overflow-x-clip 
     "
     >
+      <div className="flex justify-end w-full">
+        {isAuthenticated ? <LogoutButtonAuth0 /> : <LoginButtonAuth0 />}
+      </div>
       <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-6xl text-white">
         To Do List
       </h1>
       <AddTodo onAddTodo={addTodo} />
-      <TodoList
-        todos={todos}
-        onToggle={toggleTodo}
-        onDelete={deleteTodo}
-        onEdit={editTodo}
-        isLoading={isLoading}
-      />
+      {Auth0Loading ? (
+        <LoadingSpinner />
+      ) : (
+        isAuthenticated && (
+          <TodoList
+            todos={todos}
+            onToggle={toggleTodo}
+            onDelete={deleteTodo}
+            onEdit={editTodo}
+            isLoading={isLoading}
+          />
+        )
+      )}
       <TaskAlert notification={notification} />
     </div>
   );
