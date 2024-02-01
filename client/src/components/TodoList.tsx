@@ -17,7 +17,7 @@ export default function TodoList({
 }: TodoListProps) {
   return (
     <div
-      className={`flex flex-col gap-4 w-[448px] bg-white px-8 py-6 rounded-lg bg-opacity-85 ${
+      className={`flex flex-col gap-4 w-60 min-[340px]:w-80 min-[470px]:w-[448px] bg-white px-8 py-6 rounded-lg bg-opacity-85 hover:bg-opacity-95 ${
         todos.length === 0 ? "opacity-0" : ""
       } `}
     >

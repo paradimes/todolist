@@ -38,118 +38,152 @@ export default function App() {
   };
 
   const addTodo = async (title: string) => {
-    try {
-      const response = await fetch("http://localhost:3001/addTodo", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId: user.email, title }),
-      });
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+    if (!isAuthenticated) {
+      const newTodo = {
+        id: Date.now().toString(),
+        title,
+        completedStatus: false,
+      };
+      const updatedTodos = [...todos, newTodo];
+      setTodos(updatedTodos);
+      localStorage.setItem("todos", JSON.stringify(updatedTodos));
+    } else {
+      try {
+        const response = await fetch("http://localhost:3001/addTodo", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId: user.email, title }),
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const newTodo = await response.json();
+        setTodos((prevTodos) => [...prevTodos, newTodo]);
+      } catch (error) {
+        console.error("Add todo failed:", error);
       }
-      const newTodo = await response.json();
-      setTodos((prevTodos) => [...prevTodos, newTodo]);
-      setNotificationWithTimeout("Task added.");
-    } catch (error) {
-      console.error("Add todo failed:", error);
     }
+    setNotificationWithTimeout("Task added.");
   };
 
   const deleteTodo = async (taskId: string) => {
-    try {
-      const response = await fetch(`http://localhost:3001/deleteTodo`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId: user.email, taskId }),
-      });
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
+    if (!isAuthenticated) {
+      const updatedTodos = todos.filter((todo: Todo) => todo.id !== taskId);
+      setTodos(updatedTodos);
+      localStorage.setItem("todos", JSON.stringify(updatedTodos));
+    } else {
+      try {
+        const response = await fetch(`http://localhost:3001/deleteTodo`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId: user.email, taskId }),
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== taskId));
+      } catch (error) {
+        console.error("Delete todo failed:", error);
       }
-      setTodos((prevTodos) => prevTodos.filter((todo) => todo.id !== taskId));
-      setNotificationWithTimeout("Task deleted.");
-    } catch (error) {
-      console.error("Delete todo failed:", error);
     }
+    setNotificationWithTimeout("Task deleted.");
   };
 
-  const editTodo = async (taskId: string, taskUpdate: object) => {
-    const updatedData = {
-      userId: user.email,
-      taskId: taskId,
-      update: taskUpdate,
-    };
-
-    try {
-      const response = await fetch(`http://localhost:3001/editTodo`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData),
-      });
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const updatedTodo = await response.json();
-      setTodos((prevTodos) =>
-        prevTodos.map((todo) => (todo.id === taskId ? updatedTodo : todo))
+  const editTodo = async (taskId: string, taskUpdate: Partial<Todo>) => {
+    if (!isAuthenticated) {
+      const updatedTodos = todos.map((todo: Todo) =>
+        todo.id === taskId ? { ...todo, ...taskUpdate } : todo
       );
-    } catch (error) {
-      console.error("Update todo failed:", error);
+      setTodos(updatedTodos);
+      localStorage.setItem("todos", JSON.stringify(updatedTodos));
+    } else {
+      const updatedData = {
+        userId: user.email,
+        taskId: taskId,
+        update: taskUpdate,
+      };
+
+      try {
+        const response = await fetch(`http://localhost:3001/editTodo`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updatedData),
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const updatedTodo = await response.json();
+        setTodos((prevTodos) =>
+          prevTodos.map((todo) => (todo.id === taskId ? updatedTodo : todo))
+        );
+      } catch (error) {
+        console.error("Update todo failed:", error);
+      }
     }
+    const notificationMessage =
+      taskUpdate.completedStatus === true
+        ? "Task completed!"
+        : taskUpdate.title
+        ? "Changes saved."
+        : "";
+    setNotificationWithTimeout(notificationMessage);
   };
 
   useEffect(() => {
     const fetchTodos = async () => {
-      try {
+      if (!isAuthenticated) {
         setIsLoading(true);
-        const response = await fetch(
-          `http://localhost:3001/getTodos?userEmail=${user.email}`
-        );
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const todos = await response.json();
-        setTodos(todos);
-      } catch (error) {
-        console.error("Fetch todos failed:", error);
-      } finally {
+        const localTodos = JSON.parse(localStorage.getItem("todos") || "[]");
+        setTodos(localTodos);
         setIsLoading(false);
+      } else {
+        try {
+          setIsLoading(true);
+          const response = await fetch(
+            `http://localhost:3001/getTodos?userEmail=${user.email}`
+          );
+          if (!response.ok) {
+            throw new Error("Network response was not ok");
+          }
+          const todos = await response.json();
+          setTodos(todos);
+        } catch (error) {
+          console.error("Fetch todos failed:", error);
+        } finally {
+          setIsLoading(false);
+        }
       }
     };
-    if (user.email) {
-      fetchTodos();
-    }
-  }, [user.email]);
+    fetchTodos();
+  }, [user.email, isAuthenticated]);
 
-  // bg-[url('./assets/bg-2.jpeg')]
   return (
     <div
-      className="w-full p-10 flex relative flex-col items-center gap-5 min-h-screen bg-cover  overflow-x-clip 
+      className="w-full p-10 flex relative flex-col items-center gap-5 min-h-screen bg-cover  overflow-x-clip  font-serif
     "
     >
       <div className="flex justify-end w-full">
         {isAuthenticated ? <LogoutButtonAuth0 /> : <LoginButtonAuth0 />}
       </div>
-      <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-6xl text-white">
+      <h1 className="scroll-m-20 text-5xl font-extrabold tracking-tight lg:text-6xl text-white ">
         To Do List
       </h1>
       <AddTodo onAddTodo={addTodo} />
       {Auth0Loading ? (
         <LoadingSpinner />
       ) : (
-        isAuthenticated && (
-          <TodoList
-            todos={todos}
-            onDelete={deleteTodo}
-            onEdit={editTodo}
-            isLoading={isLoading}
-          />
-        )
+        <TodoList
+          todos={todos}
+          onDelete={deleteTodo}
+          onEdit={editTodo}
+          isLoading={isLoading}
+        />
       )}
       <TaskAlert notification={notification} />
     </div>

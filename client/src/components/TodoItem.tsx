@@ -60,7 +60,7 @@ export default function TodoItem({
       </div>
       <div
         id="buttons"
-        className={`flex items-center justify-end gap-2 w-1/3 hover:opacity-100 ${
+        className={`flex items-center justify-end gap-2 min-w-28 w-1/3 hover:opacity-100 ${
           isEditing ? "opacity-100" : "opacity-0"
         } `}
       >

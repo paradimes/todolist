@@ -75,6 +75,32 @@
   }
 }
 
+body {
+  height: 100vh;
+  background-color: #010388;
+  background-image: url("assets/blob.svg"), url("assets/blob2.svg"),
+    url("assets/blob3.svg"), url("assets/blob4.svg");
+  background-position: top 40vw right -35vw, left -25vw center,
+    bottom -40vw center, top -30vw left 15vw;
+  background-size: 70%, 50%, 80%, 60%;
+  background-attachment: scroll, fixed, fixed, scroll;
+  background-repeat: no-repeat;
+}
+
+@media screen and (min-width: 768px) {
+  body {
+    height: 100vh;
+    background-color: #010388;
+    background-image: url("assets/blob.svg"), url("assets/blob2.svg"),
+      url("assets/blob3.svg"), url("assets/blob4.svg");
+    background-position: top 20vw right -35vw, left -25vw center,
+      bottom -40vw center, top -30vw left 15vw;
+    background-size: 70%, 50%, 80%, 60%;
+    background-attachment: scroll, fixed, fixed, scroll;
+    background-repeat: no-repeat;
+  }
+}
+
 @media screen and (min-width: 1024px) {
   body {
     height: 100vh;
