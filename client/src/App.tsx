@@ -6,7 +6,7 @@ import TaskAlert from "./components/TaskAlert";
 import LoginButtonAuth0 from "./components/LoginButtonAuth0";
 import LoadingSpinner from "./components/LoadingSpinner";
 import { useAuth0 } from "@auth0/auth0-react";
-import LogoutButtonAuth0 from "./components/ui/LogoutButtonAuth0";
+import LogoutButtonAuth0 from "./components/LogoutButtonAuth0";
 
 export type Todo = {
   id: string;
