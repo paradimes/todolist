@@ -6,6 +6,7 @@ import TaskAlert from "./components/TaskAlert";
 import LoginButtonAuth0 from "./components/LoginButtonAuth0";
 import LoadingSpinner from "./components/LoadingSpinner";
 import { useAuth0 } from "@auth0/auth0-react";
+import { API_URL } from "./setup";
 import LogoutButtonAuth0 from "./components/LogoutButtonAuth0";
 
 export type Todo = {
@@ -49,7 +50,7 @@ export default function App() {
       localStorage.setItem("todos", JSON.stringify(updatedTodos));
     } else {
       try {
-        const response = await fetch("http://localhost:3001/addTodo", {
+        const response = await fetch(`${API_URL}/addTodo`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -75,7 +76,7 @@ export default function App() {
       localStorage.setItem("todos", JSON.stringify(updatedTodos));
     } else {
       try {
-        const response = await fetch(`http://localhost:3001/deleteTodo`, {
+        const response = await fetch(`${API_URL}/deleteTodo`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -108,7 +109,7 @@ export default function App() {
       };
 
       try {
-        const response = await fetch(`http://localhost:3001/editTodo`, {
+        const response = await fetch(`${API_URL}/editTodo`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -146,7 +147,7 @@ export default function App() {
         try {
           setIsLoading(true);
           const response = await fetch(
-            `http://localhost:3001/getTodos?userEmail=${user.email}`
+            `${API_URL}/getTodos?userEmail=${user.email}`
           );
           if (!response.ok) {
             throw new Error("Network response was not ok");
