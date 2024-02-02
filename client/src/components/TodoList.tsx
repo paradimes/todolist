@@ -22,7 +22,9 @@ export default function TodoList({
       } `}
     >
       {isLoading ? (
-        <LoadingSpinner />
+        <div className="w-full flex items-center justify-center">
+          <LoadingSpinner />
+        </div>
       ) : todos.length === 0 ? (
         <h4 className="scroll-m-20 text-xl font-semibold tracking-tight">
           {""}

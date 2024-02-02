@@ -9,6 +9,8 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { API_URL } from "./setup";
 import LogoutButtonAuth0 from "./components/LogoutButtonAuth0";
 
+console.log(API_URL);
+
 export type Todo = {
   id: string;
   title: string;
@@ -146,6 +148,7 @@ export default function App() {
       } else {
         try {
           setIsLoading(true);
+          console.log(`${API_URL}/getTodos?userEmail=${user.email}`);
           const response = await fetch(
             `${API_URL}/getTodos?userEmail=${user.email}`
           );
