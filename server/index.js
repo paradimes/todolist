@@ -8,6 +8,10 @@ const { TodoItem, TodoUser } = require("./todo");
 app.use(express.json());
 app.use(cors());
 
+app.get("/testing", async (req, res) => {
+  res.send("Testing!");
+});
+
 app.get("/getTodos", async (req, res) => {
   await connect();
   const { userEmail } = req.query;
