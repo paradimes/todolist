@@ -55,7 +55,7 @@ export default function App() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ userId: user.email, title }),
+          body: JSON.stringify({ userId: user.sub, title }),
         });
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -81,7 +81,7 @@ export default function App() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ userId: user.email, taskId }),
+          body: JSON.stringify({ userId: user.sub, taskId }),
         });
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -103,7 +103,7 @@ export default function App() {
       localStorage.setItem("todos", JSON.stringify(updatedTodos));
     } else {
       const updatedData = {
-        userId: user.email,
+        userId: user.sub,
         taskId: taskId,
         update: taskUpdate,
       };
@@ -147,9 +147,10 @@ export default function App() {
         try {
           setIsLoading(true);
           const response = await fetch(
-            `${API_URL}/getTodos?userEmail=${user.email}`
+            `${API_URL}/getTodos?userId=${user.sub}`
           );
           if (!response.ok) {
+            setTodos([]);
             throw new Error("Network response was not ok");
           }
           const todos = await response.json();
@@ -162,7 +163,7 @@ export default function App() {
       }
     };
     fetchTodos();
-  }, [user.email, isAuthenticated]);
+  }, [user.sub, isAuthenticated]);
 
   return (
     <div

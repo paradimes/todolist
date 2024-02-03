@@ -14,9 +14,9 @@ app.get("/testing", async (req, res) => {
 
 app.get("/getTodos", async (req, res) => {
   await connect();
-  const { userEmail } = req.query;
+  const { userId } = req.query;
   try {
-    const user = await TodoUser.findOne({ userId: userEmail });
+    const user = await TodoUser.findOne({ userId: userId });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
