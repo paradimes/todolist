@@ -52,7 +52,7 @@ export default function TodoItem({
             htmlFor="terms"
             className={`text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 ${
               completedStatus ? `line-through` : `none`
-            } pointer-events-none break-words min-w-0 leading-5	`}
+            } pointer-events-none break-words min-w-0 leading-normal	`}
           >
             {title}
           </label>
