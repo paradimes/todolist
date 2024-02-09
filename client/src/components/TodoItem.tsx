@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { Trash2, PencilLine, Save } from "lucide-react";
+import { Trash2, PencilLine, Save, ChevronUp, ChevronDown } from "lucide-react";
 import { useState } from "react";
 
 type TodoItemProps = {
@@ -62,33 +62,51 @@ export default function TodoItem({
       </div>
       <div
         id="buttons"
-        className={`flex items-center justify-end gap-2 min-w-28 w-1/3 hover:opacity-100 ${
+        className={`flex items-center justify-end gap-2 min-w-28 w-fit hover:opacity-100 ${
           isEditing ? "opacity-100" : "opacity-0"
-        }    border-2 border-orange-600 `}
+        }`}
       >
         {isEditing ? (
           <Button
-            className="h-fit hover:bg-blue-500 transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300  "
+            size="icon"
+            className="h-8 hover:bg-blue-500 transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300  "
             onClick={() => handleSave()}
           >
             <Save className="h-4 w-4" />
           </Button>
         ) : (
           <Button
-            className="h-fit hover:bg-yellow-500 transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300 "
+            size="icon"
+            className="h-8 hover:bg-yellow-500 transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300 "
             onClick={() => handleEditClick()}
           >
             <PencilLine className="h-4 w-4" />
           </Button>
         )}
         <Button
-          className="h-fit hover:bg-red-500 transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300  "
+          size="icon"
+          className="h-8 hover:bg-red-500 transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300  "
           onClick={() => onDelete(id)}
         >
           <Trash2 className="h-4 w-4" />
         </Button>
-        <Button onClick={() => moveTask(id, "up")}>Up</Button>
-        <Button onClick={() => moveTask(id, "down")}>Down</Button>
+
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300 bg-black hover:bg-blue-900"
+          onClick={() => moveTask(id, "up")}
+        >
+          <ChevronUp className="h-4 w-4" color="white" />
+        </Button>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-8 transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300 bg-black hover:bg-blue-900"
+          onClick={() => moveTask(id, "down")}
+        >
+          <ChevronDown className="h-4 w-4" color="white" />
+        </Button>
       </div>
     </div>
   );
