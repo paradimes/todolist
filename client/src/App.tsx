@@ -136,6 +136,40 @@ export default function App() {
     setNotificationWithTimeout(notificationMessage);
   };
 
+  const moveTask = async (taskId: string, direction: string) => {
+    const taskIndex = todos.findIndex((todo) => todo.id === taskId);
+    const updatedTodos: Todo[] = [...todos];
+    let taskMoved = false;
+
+    if (taskIndex > 0 && direction === "up") {
+      [updatedTodos[taskIndex - 1], updatedTodos[taskIndex]] = [
+        updatedTodos[taskIndex],
+        updatedTodos[taskIndex - 1],
+      ];
+      taskMoved = true;
+    } else if (taskIndex < todos.length - 1 && direction === "down") {
+      [updatedTodos[taskIndex], updatedTodos[taskIndex + 1]] = [
+        updatedTodos[taskIndex + 1],
+        updatedTodos[taskIndex],
+      ];
+      taskMoved = true;
+    }
+    setTodos(updatedTodos);
+
+    if (isAuthenticated && taskMoved) {
+      const response = await fetch(`${API_URL}/moveTask`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: user.sub, taskId, direction }),
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+    }
+  };
+
   useEffect(() => {
     const fetchTodos = async () => {
       if (!isAuthenticated) {
@@ -185,6 +219,7 @@ export default function App() {
           onDelete={deleteTodo}
           onEdit={editTodo}
           isLoading={isLoading}
+          moveTask={moveTask}
         />
       )}
       <TaskAlert notification={notification} />

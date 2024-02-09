@@ -114,6 +114,45 @@ app.put("/editTodo", async (req, res) => {
   }
 });
 
+app.put("/moveTask", async (req, res) => {
+  await connect();
+  const { userId, taskId, direction } = req.body;
+
+  try {
+    let user = await TodoUser.findOne({ userId });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const taskIndex = user.todos.findIndex(
+      (todo) => todo._id.toString() === taskId
+    );
+    if (taskIndex === -1) {
+      return res.status(404).json({ message: "Todo not found" });
+    }
+
+    if (taskIndex > 0 && direction === "up") {
+      [user.todos[taskIndex - 1], user.todos[taskIndex]] = [
+        user.todos[taskIndex],
+        user.todos[taskIndex - 1],
+      ];
+      await user.save();
+      res.send("Task moved up.");
+    } else if (taskIndex < user.todos.length - 1 && direction === "down") {
+      [user.todos[taskIndex], user.todos[taskIndex + 1]] = [
+        user.todos[taskIndex + 1],
+        user.todos[taskIndex],
+      ];
+      await user.save();
+      res.send("Task moved down.");
+    } else {
+      res.send("Cannot move task out of bounds.");
+    }
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });

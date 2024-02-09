@@ -7,6 +7,7 @@ type TodoListProps = {
   onDelete: (id: string) => void;
   onEdit: (id: string, taskUpdate: object) => void;
   isLoading: boolean;
+  moveTask: (taskId: string, direction: string) => void;
 };
 
 export default function TodoList({
@@ -14,6 +15,7 @@ export default function TodoList({
   onDelete,
   onEdit,
   isLoading,
+  moveTask,
 }: TodoListProps) {
   return (
     <div
@@ -36,6 +38,7 @@ export default function TodoList({
             {...todo}
             onDelete={onDelete}
             onEdit={onEdit}
+            moveTask={moveTask}
           />
         ))
       )}

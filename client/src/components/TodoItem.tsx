@@ -10,6 +10,7 @@ type TodoItemProps = {
   completedStatus: boolean;
   onDelete: (id: string) => void;
   onEdit: (id: string, taskUpdate: object) => void;
+  moveTask: (taskId: string, direction: string) => void;
 };
 
 export default function TodoItem({
@@ -18,6 +19,7 @@ export default function TodoItem({
   completedStatus,
   onDelete,
   onEdit,
+  moveTask,
 }: TodoItemProps) {
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [editText, setEditText] = useState<string>(title);
@@ -62,7 +64,7 @@ export default function TodoItem({
         id="buttons"
         className={`flex items-center justify-end gap-2 min-w-28 w-1/3 hover:opacity-100 ${
           isEditing ? "opacity-100" : "opacity-0"
-        } `}
+        }    border-2 border-orange-600 `}
       >
         {isEditing ? (
           <Button
@@ -85,6 +87,8 @@ export default function TodoItem({
         >
           <Trash2 className="h-4 w-4" />
         </Button>
+        <Button onClick={() => moveTask(id, "up")}>Up</Button>
+        <Button onClick={() => moveTask(id, "down")}>Down</Button>
       </div>
     </div>
   );
