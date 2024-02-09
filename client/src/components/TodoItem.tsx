@@ -92,17 +92,15 @@ export default function TodoItem({
         </Button>
 
         <Button
-          variant="outline"
           size="icon"
-          className="h-8 transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300 bg-black hover:bg-blue-900"
+          className="h-8 transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300 bg-black hover:bg-indigo-500"
           onClick={() => moveTask(id, "up")}
         >
           <ChevronUp className="h-4 w-4" color="white" />
         </Button>
         <Button
-          variant="outline"
           size="icon"
-          className="h-8 transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300 bg-black hover:bg-blue-900"
+          className="h-8 transition ease-in-out  hover:-translate-y-1 hover:scale-110 duration-300 bg-black hover:bg-indigo-500"
           onClick={() => moveTask(id, "down")}
         >
           <ChevronDown className="h-4 w-4" color="white" />
