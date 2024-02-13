@@ -2,8 +2,9 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const port = 3001;
-const { connect } = require("./db");
-const { TodoItem, TodoUser } = require("./todo");
+const { connect } = require("./db/db");
+const { TodoItem, TodoUser } = require("./db/todo");
+const { validateAccessToken } = require("./middleware/auth0.middleware");
 
 app.use(express.json());
 app.use(cors());
@@ -12,9 +13,10 @@ app.get("/testing", async (req, res) => {
   res.send("Testing!");
 });
 
-app.get("/getTodos", async (req, res) => {
+app.get("/getTodos", validateAccessToken, async (req, res) => {
   await connect();
-  const { userId } = req.query;
+  const auth = req.auth;
+  const userId = auth.payload.sub;
   try {
     const user = await TodoUser.findOne({ userId: userId });
     if (!user) {
@@ -32,9 +34,11 @@ app.get("/getTodos", async (req, res) => {
   }
 });
 
-app.post("/addTodo", async (req, res) => {
+app.post("/addTodo", validateAccessToken, async (req, res) => {
   await connect();
-  const { userId, title } = req.body;
+  const auth = req.auth;
+  const userId = auth.payload.sub;
+  const { title } = req.body;
 
   try {
     let user = await TodoUser.findOne({ userId });
@@ -60,9 +64,11 @@ app.post("/addTodo", async (req, res) => {
   }
 });
 
-app.delete("/deleteTodo", async (req, res) => {
+app.delete("/deleteTodo", validateAccessToken, async (req, res) => {
   await connect();
-  const { userId, taskId } = req.body;
+  const auth = req.auth;
+  const userId = auth.payload.sub;
+  const { taskId } = req.body;
 
   try {
     let user = await TodoUser.findOne({ userId });
@@ -80,9 +86,11 @@ app.delete("/deleteTodo", async (req, res) => {
   }
 });
 
-app.put("/editTodo", async (req, res) => {
+app.put("/editTodo", validateAccessToken, async (req, res) => {
   await connect();
-  const { userId, taskId, update } = req.body;
+  const auth = req.auth;
+  const userId = auth.payload.sub;
+  const { taskId, update } = req.body;
 
   try {
     let user = await TodoUser.findOne({ userId });
@@ -114,9 +122,11 @@ app.put("/editTodo", async (req, res) => {
   }
 });
 
-app.put("/moveTask", async (req, res) => {
+app.put("/moveTask", validateAccessToken, async (req, res) => {
   await connect();
-  const { userId, taskId, direction } = req.body;
+  const auth = req.auth;
+  const userId = auth.payload.sub;
+  const { taskId, direction } = req.body;
 
   try {
     let user = await TodoUser.findOne({ userId });

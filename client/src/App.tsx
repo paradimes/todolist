@@ -16,7 +16,12 @@ export type Todo = {
 };
 
 export default function App() {
-  const { user = {}, isAuthenticated, isLoading: Auth0Loading } = useAuth0();
+  const {
+    user = {},
+    isAuthenticated,
+    isLoading: Auth0Loading,
+    getAccessTokenSilently,
+  } = useAuth0();
 
   const [todos, setTodos] = useState<Todo[]>([]);
   const [notification, setNotification] = useState<string | null>(null);
@@ -50,12 +55,14 @@ export default function App() {
       localStorage.setItem("todos", JSON.stringify(updatedTodos));
     } else {
       try {
+        const accessToken = await getAccessTokenSilently();
         const response = await fetch(`${API_URL}/addTodo`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify({ userId: user.sub, title }),
+          body: JSON.stringify({ title }),
         });
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -76,12 +83,15 @@ export default function App() {
       localStorage.setItem("todos", JSON.stringify(updatedTodos));
     } else {
       try {
+        const accessToken = await getAccessTokenSilently();
+
         const response = await fetch(`${API_URL}/deleteTodo`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
           },
-          body: JSON.stringify({ userId: user.sub, taskId }),
+          body: JSON.stringify({ taskId }),
         });
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -103,16 +113,18 @@ export default function App() {
       localStorage.setItem("todos", JSON.stringify(updatedTodos));
     } else {
       const updatedData = {
-        userId: user.sub,
         taskId: taskId,
         update: taskUpdate,
       };
 
       try {
+        const accessToken = await getAccessTokenSilently();
+
         const response = await fetch(`${API_URL}/editTodo`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
           },
           body: JSON.stringify(updatedData),
         });
@@ -157,12 +169,15 @@ export default function App() {
     setTodos(updatedTodos);
 
     if (isAuthenticated && taskMoved) {
+      const accessToken = await getAccessTokenSilently();
+
       const response = await fetch(`${API_URL}/moveTask`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ userId: user.sub, taskId, direction }),
+        body: JSON.stringify({ taskId, direction }),
       });
       if (!response.ok) {
         throw new Error("Network response was not ok");
@@ -182,9 +197,13 @@ export default function App() {
       } else {
         try {
           setIsLoading(true);
-          const response = await fetch(
-            `${API_URL}/getTodos?userId=${user.sub}`
-          );
+          const accessToken = await getAccessTokenSilently();
+          const response = await fetch(`${API_URL}/getTodos`, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
           if (!response.ok) {
             setTodos([]);
             throw new Error("Network response was not ok");
@@ -199,6 +218,7 @@ export default function App() {
       }
     };
     fetchTodos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user.sub, isAuthenticated]);
 
   return (
@@ -212,16 +232,16 @@ export default function App() {
       <h1 className="scroll-m-20 text-5xl font-extrabold tracking-tight lg:text-6xl text-white ">
         To Do List
       </h1>
-      <AddTodo onAddTodo={addTodo} />
+      <AddTodo onAddTodo={(taskId) => addTodo(taskId)} />
       {Auth0Loading ? (
         <LoadingSpinner />
       ) : (
         <TodoList
           todos={todos}
-          onDelete={deleteTodo}
-          onEdit={editTodo}
+          onDelete={(taskId) => deleteTodo(taskId)}
+          onEdit={(taskId, taskUpdate) => editTodo(taskId, taskUpdate)}
           isLoading={isLoading}
-          moveTask={moveTask}
+          moveTask={(taskId, direction) => moveTask(taskId, direction)}
         />
       )}
       <TaskAlert notification={notification} />
