@@ -4,7 +4,7 @@ const cors = require("cors");
 const port = 3001;
 const { connect } = require("./db/db");
 const { TodoItem, TodoUser } = require("./db/todo");
-const { validateAccessToken } = require("./middleware/auth0.middleware");
+const { validateAccessToken } = require("./auth0.middleware");
 
 app.use(express.json());
 app.use(cors());
